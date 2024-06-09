@@ -87,13 +87,15 @@ for (n in sample_size) {
   current_data <- subset(summary_data, Sample_Size == n)
   
   model <- rma(yi, vi , method="REML", data = current_data)
-  I_Squared <- model$I2
+  I2 <- model$I2
+  tau <- sqrt(model$tau2)
   d <- coef(model)[1]
   
   models_fitting <- rbindlist(list(models_fitting, data.table(
     Sample_Size = n,
-    I_Squared = I_Squared,
-    d = d
+    I2 = I2,
+    d = d,
+    tau = tau
   )), use.names = TRUE, fill = TRUE)
 }
 
@@ -102,7 +104,7 @@ for (n in sample_size) {
 
 p <- ggplot() +
   geom_line(data = I2_data, aes(x = n, y = I2), color = "#1f77b4", size = 1, alpha = 0.8) +
-  geom_point(data = models_fitting, aes(x = Sample_Size, y = I_Squared), color = "#ff7f0e", size = 3, shape = 19, alpha = 0.9) +
+  geom_point(data = models_fitting, aes(x = Sample_Size, y = I2), color = "#ff7f0e", size = 3, shape = 19, alpha = 0.9) +
   scale_x_log10(labels = label_number(), breaks = trans_breaks("log10", function(x) 10^x)) +
   labs(title = "I² values across different sample sizes",
        x = "sample size (n)",
