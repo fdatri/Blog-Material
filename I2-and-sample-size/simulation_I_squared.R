@@ -3,6 +3,7 @@ library(dplyr)
 library(data.table)
 library(ggplot2)
 library(faux)
+library(scales)
 
 set.seed(123)
 
@@ -16,7 +17,7 @@ tau2 <- tau^2
 I2 <- function(v, tau2) {
   wi <- 1 / v
   m <- length(v)  
-  v_tilde <- (m * sum(wi)) / (sum(wi)^2 - sum(wi^2))  # Calculate estimated sampling variance
+  v_tilde <- ((m-1) * sum(wi)) / (sum(wi)^2 - sum(wi^2))  # Calculate estimated sampling variance
   return(100 * (tau2 / (tau2 + v_tilde)))  
 }
 
@@ -103,7 +104,7 @@ for (n in sample_size) {
 
 
 p <- ggplot() +
-  geom_line(data = I2_data, aes(x = n, y = I2), color = "#1f77b4", size = 1, alpha = 0.8) +
+  geom_line(data = I2_data, aes(x = n, y = I2), color = "#1f77b4", linewidth = 1, alpha = 0.8) +
   geom_point(data = models_fitting, aes(x = Sample_Size, y = I2), color = "#ff7f0e", size = 3, shape = 19, alpha = 0.9) +
   scale_x_log10(labels = label_number(), breaks = trans_breaks("log10", function(x) 10^x)) +
   labs(title = "I² values across different sample sizes",
@@ -120,5 +121,4 @@ p <- ggplot() +
   scale_colour_manual("Legend", 
                       labels = c("Theory", "Observed"),
                       values = c("#1f77b4", "#ff7f0e"))
-
 print(p)
